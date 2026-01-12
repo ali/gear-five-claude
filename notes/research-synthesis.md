@@ -125,4 +125,4 @@ Track what clarifications led to good outcomes.
 1. Draft BOOTSTRAP.md structure
 2. Design minimal hook set
 3. Create Obsidian vault template
-4. Write core skills (keychain, context-hygiene, self-improve)
+4. Write core skills (keychain-security, self-improve, claude-expert)

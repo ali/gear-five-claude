@@ -46,7 +46,6 @@ Gear Five Claude should know and stay updated on:
 ├── skills/
 │   ├── claude-expert/              # Claude Code mastery
 │   ├── keychain-security/          # Secure credential handling
-│   ├── context-hygiene/            # Context window management
 │   └── self-improve/               # Learning from sessions
 └── scripts/
     └── hooks-dispatch.sh           # Generic dispatcher
@@ -86,7 +85,7 @@ PHASE 2: STRUCTURE
 PHASE 3: CONFIGURE
 ├── Generate personalized CLAUDE.md
 ├── Set up settings.json with hooks
-└── Install core skills (claude-expert, keychain, context-hygiene, self-improve)
+└── Install core skills (claude-expert, keychain-security, self-improve)
 
 PHASE 4: INITIALIZE
 ├── Create first daily note
@@ -128,8 +127,8 @@ Secure credential patterns:
 - Read from Keychain at runtime via exit codes
 - Store paths to secrets, not secrets themselves
 
-### context-hygiene
-Context window discipline:
+### Context Discipline (in CLAUDE.md)
+Context hygiene is foundational, not a skill. Baked into CLAUDE.md:
 - Use references (paths, URLs) not full content
 - Dynamic discovery: grep/glob to find, read what's needed
 - Track context budget mentally

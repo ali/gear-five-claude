@@ -148,7 +148,8 @@ Create the following skills in `~/.claude/skills/`:
 **claude-expert/SKILL.md** - Claude Code mastery
 **self-improve/SKILL.md** - Learning loop
 **keychain-security/SKILL.md** - Secure credentials
-**context-hygiene/SKILL.md** - Context management
+
+(Context hygiene principles are baked into the generated CLAUDE.md)
 
 (See the skills/ directory in this repo for full content)
 

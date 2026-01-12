@@ -35,11 +35,12 @@ The entry point. Claude reads this and self-configures through 5 phases:
 5. **Verify** - Test everything works
 
 ### Skills
-Four core skills in `skills/`:
+Three core skills in `skills/`:
 - **claude-expert** - Claude Code mastery (hooks, skills, subagents)
 - **self-improve** - The learning loop
 - **keychain-security** - Secure credential handling
-- **context-hygiene** - Context window management
+
+Context hygiene principles are baked into `CLAUDE.md` as foundational behavior.
 
 ### Hooks
 Modular hooks in `hooks/`:
@@ -107,8 +108,7 @@ Key sources:
 ├── skills/
 │   ├── claude-expert/
 │   ├── self-improve/
-│   ├── keychain-security/
-│   └── context-hygiene/
+│   └── keychain-security/
 └── scripts/
     └── hooks-dispatch.sh
 
