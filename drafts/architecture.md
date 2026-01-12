@@ -51,6 +51,7 @@ Gear Five Claude should know and stay updated on:
     └── hooks-dispatch.sh           # Generic dispatcher
 
 ~/src/claude-workspace/             # Claude's home (user-chosen location)
+├── bin/                            # Claude's executables (in PATH, RW sandbox)
 ├── CLAUDE.md                       # Project-level instructions
 ├── vault/                          # Obsidian vault for memory
 │   ├── .obsidian/                  # Obsidian config

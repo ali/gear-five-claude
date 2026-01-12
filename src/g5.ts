@@ -33,11 +33,15 @@ type SettingsJson = {
     }>
   >;
   statusLine?: { type: "command"; command: string };
+  sandbox?: {
+    allowedWritePaths?: string[];
+  };
 };
 
 type InstallConfig = {
   workspace: string;
   vault: string;
+  bin: string;
   profile: Profile;
   enableStatusLine: boolean;
   claudeDir: string;
@@ -115,10 +119,13 @@ function gearFiveSettingsPatch(cfg: InstallConfig): SettingsJson {
   const env: Record<string, string> = {
     GEARFIVE_WORKSPACE: cfg.workspace,
     GEARFIVE_VAULT: cfg.vault,
+    GEARFIVE_BIN: cfg.bin,
+    // Prepend Claude's bin to PATH so his executables are available
+    PATH: `${cfg.bin}:$PATH`,
   };
 
-  // Compatibility: if user doesn’t already use CLAUDE_VAULT, set it.
-  // (We won’t clobber it during merge.)
+  // Compatibility: if user doesn't already use CLAUDE_VAULT, set it.
+  // (We won't clobber it during merge.)
   env.CLAUDE_VAULT = cfg.vault;
 
   const hooks: SettingsJson["hooks"] = {
@@ -174,7 +181,12 @@ function gearFiveSettingsPatch(cfg: InstallConfig): SettingsJson {
     deny: cfg.profile === "strict" ? denyStrict : denyBalanced,
   };
 
-  const patch: SettingsJson = { env, hooks, permissions };
+  // Sandbox: give Claude RW access to his workspace (bin, vault, etc.)
+  const sandbox: NonNullable<SettingsJson["sandbox"]> = {
+    allowedWritePaths: [cfg.workspace],
+  };
+
+  const patch: SettingsJson = { env, hooks, permissions, sandbox };
   if (cfg.enableStatusLine) {
     patch.statusLine = { type: "command", command: statusLineScript };
   }
@@ -213,6 +225,15 @@ function mergeSettings(existing: SettingsJson, patch: SettingsJson): SettingsJso
 
   // statusLine: user opted-in (default), so set it. Users can disable via --no-statusline.
   if (patch.statusLine) next.statusLine = patch.statusLine;
+
+  // sandbox: additive merge for allowedWritePaths
+  if (patch.sandbox?.allowedWritePaths?.length) {
+    next.sandbox ??= {};
+    next.sandbox.allowedWritePaths = uniqueAppend(
+      next.sandbox.allowedWritePaths ?? [],
+      patch.sandbox.allowedWritePaths,
+    );
+  }
 
   return next;
 }
@@ -317,7 +338,8 @@ async function install(cfg: InstallConfig) {
   if (cfg.dryRun) output.write(`[dry-run] chmod +x ${path.join(cfg.claudeDir, "statusline.sh")}\n`);
   else await chmod(path.join(cfg.claudeDir, "statusline.sh"), 0o755);
 
-  // 3) Initialize vault (copy template, but never overwrite user edits)
+  // 3) Initialize workspace directories (bin, vault)
+  await mkdir(cfg.bin, { recursive: true });
   await mkdir(cfg.vault, { recursive: true });
   const vaultTemplateDir = path.join(repoRoot, "vault-template");
   if (await pathExists(vaultTemplateDir)) {
@@ -348,6 +370,7 @@ async function install(cfg: InstallConfig) {
       "Gear Five installed.",
       `- Workspace: ${cfg.workspace}`,
       `- Vault: ${cfg.vault}`,
+      `- Bin: ${cfg.bin} (in PATH, sandbox RW)`,
       `- Claude settings: ${settingsPath}`,
       "",
       "Next:",
@@ -373,12 +396,14 @@ async function doctor(cfg: InstallConfig) {
     if (!(await pathExists(f))) missing.push(f);
   }
 
-  const envOk = settings.env?.GEARFIVE_VAULT && settings.env?.GEARFIVE_WORKSPACE;
+  const envOk = settings.env?.GEARFIVE_VAULT && settings.env?.GEARFIVE_WORKSPACE && settings.env?.GEARFIVE_BIN;
   const hooksOk =
     Boolean(settings.hooks?.SessionStart?.length) &&
     Boolean(settings.hooks?.PreCompact?.length) &&
     Boolean(settings.hooks?.SessionEnd?.length);
   const statusOk = cfg.enableStatusLine ? Boolean(settings.statusLine?.command) : true;
+  const sandboxOk = settings.sandbox?.allowedWritePaths?.some((p) => p === cfg.workspace);
+  const binDirExists = await pathExists(cfg.bin);
 
   output.write("\nGear Five doctor:\n");
   if (missing.length) {
@@ -390,8 +415,10 @@ async function doctor(cfg: InstallConfig) {
   output.write(`- Env (GEARFIVE_*): ${envOk ? "OK" : "MISSING"}\n`);
   output.write(`- Hooks configured: ${hooksOk ? "OK" : "MISSING"}\n`);
   output.write(`- Status line: ${statusOk ? "OK" : "MISSING"}\n`);
+  output.write(`- Sandbox (workspace RW): ${sandboxOk ? "OK" : "MISSING"}\n`);
+  output.write(`- Bin directory: ${binDirExists ? "OK" : "MISSING"}\n`);
 
-  if (!envOk || !hooksOk || !statusOk || missing.length) {
+  if (!envOk || !hooksOk || !statusOk || !sandboxOk || !binDirExists || missing.length) {
     output.write("\nFix: re-run install:\n");
     output.write(`g5 install --workspace ${cfg.workspace}\n\n`);
     process.exit(1);
@@ -424,6 +451,7 @@ async function runWizard() {
 
     const workspace = normalizeAbs(workspaceIn);
     const vault = path.join(workspace, "vault");
+    const bin = path.join(workspace, "bin");
     const claudeDir = path.join(os.homedir(), ".claude");
     const templatesRoot = repoRootFromHere();
     const enableStatusLine = statusIn === "" || statusIn === "y" || statusIn === "yes";
@@ -431,6 +459,7 @@ async function runWizard() {
     output.write("\nSummary:\n");
     output.write(`- workspace: ${workspace}\n`);
     output.write(`- vault:     ${vault}\n`);
+    output.write(`- bin:       ${bin}\n`);
     output.write(`- profile:   ${profileIn}\n`);
     output.write(`- statusline:${enableStatusLine ? "yes" : "no"}\n`);
     const confirm = (await rl.question("\nProceed? [Y/n]: ")).trim().toLowerCase();
@@ -442,6 +471,7 @@ async function runWizard() {
     await install({
       workspace,
       vault,
+      bin,
       profile: profileIn === "strict" ? "strict" : "balanced",
       enableStatusLine,
       claudeDir,
@@ -482,6 +512,7 @@ async function main() {
 
   const workspace = normalizeAbs(partial.workspace ?? "~/src/claude-workspace");
   const vault = normalizeAbs(partial.vault ?? path.join(workspace, "vault"));
+  const bin = path.join(workspace, "bin");
   const profile: Profile = partial.profile === "strict" ? "strict" : "balanced";
   const enableStatusLine = partial.enableStatusLine ?? true;
   const claudeDir = normalizeAbs(partial.claudeDir ?? path.join(os.homedir(), ".claude"));
@@ -489,7 +520,7 @@ async function main() {
   const dryRun = partial.dryRun ?? false;
   const yes = partial.yes ?? false;
 
-  const resolved: InstallConfig = { workspace, vault, profile, enableStatusLine, claudeDir, templatesRoot, dryRun, yes };
+  const resolved: InstallConfig = { workspace, vault, bin, profile, enableStatusLine, claudeDir, templatesRoot, dryRun, yes };
 
   if (cmd === "wizard") {
     await runWizard();
