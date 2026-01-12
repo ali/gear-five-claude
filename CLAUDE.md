@@ -23,6 +23,12 @@ The goal: transform Claude from a static tool into a dynamic, self-improving par
 | `hooks/` | Modular hooks in `.d/` directories |
 | `vault-template/` | Obsidian vault structure template |
 | `drafts/` | Architecture decisions and research |
+| `src/g5.ts` | Gear Five wizard/installer source (Bun CLI entrypoint) |
+| `release/g5-install.sh` | Release installer script users download+run (no clone required) |
+| `scripts/build-g5.sh` | Build compiled `g5-*` binaries + `g5-templates.tar.gz` |
+| `scripts/test.sh` | Lightweight sanity tests (dry-run install into temp dirs) |
+| `scripts/release-*.sh` | Release check/notes/tag helpers |
+| `.github/workflows/` | CI + release automation |
 
 ## Context Discipline
 
@@ -53,9 +59,9 @@ Context is precious. Every token competes with reasoning capacity.
 4. Document in README.md
 
 ### Changing the Bootstrap
-1. Test by actually bootstrapping a fresh environment
-2. Phase order matters: Gather → Structure → Configure → Initialize → Verify
-3. Keep questions minimal - users abandon long setup flows
+1. The canonical UX is **release-installer-based**: Claude reads `BOOTSTRAP.md` → user downloads `g5-install.sh` from Releases → runs it → start/restart Claude Code
+2. Keep questions minimal - users abandon long setup flows
+3. If you change install behavior, update ALL of: `BOOTSTRAP.md`, `README.md`, `release/g5-install.sh`, and the release workflow (`.github/workflows/release.yml`)
 
 ## Testing Changes
 
@@ -65,12 +71,52 @@ After modifications:
 ls -la skills/
 ls -la hooks/*/
 
-# Test hooks dispatch
-./scripts/hooks-dispatch.sh SessionStart
+# Run local sanity tests
+make test
+
+# Build compiled binaries + templates bundle (do not commit dist/)
+make build
+
+# Release preflight checks (expects clean working tree)
+make release-check
 
 # Grep for stale references
-grep -r "context-hygiene" . --include="*.md"
+grep -r "scripts/g5.ts" . --include="*.md" --include="*.sh"
 ```
+
+## Release & Distribution
+
+### What gets published (GitHub Releases)
+
+- **Binaries**: `g5-<os>-<arch>` (built by GitHub Actions), e.g.:
+  - `g5-darwin-arm64`
+  - `g5-darwin-x64`
+  - `g5-linux-x64`
+- **Templates bundle**: `g5-templates.tar.gz` (hooks/skills/vault-template/scripts)
+- **Installer**: `g5-install.sh` (downloads the right binary + templates, installs `~/.claude/bin/g5`, runs `g5 wizard`)
+
+### How to cut a release
+
+Prereqs:
+- You are on `main`
+- Working tree is clean
+
+Commands:
+```bash
+make release-check
+make tag-release VERSION=vX.Y.Z
+```
+
+Notes:
+- Tag pushes trigger `.github/workflows/release.yml` which builds and uploads assets.
+- Release notes template: `make release-notes VERSION=vX.Y.Z`
+
+## Important invariants
+
+- **User-scope only**: Gear Five modifies `~/.claude/settings.json` (never project scope) per Claude Code scope model.
+- **Non-destructive merge**: only add/update Gear Five-owned keys; never clobber unrelated settings.
+- **No hardcoded vault paths in hooks**: hooks should read `GEARFIVE_VAULT` (and optionally fall back to `CLAUDE_VAULT`).
+- **Never commit build artifacts**: `dist/` is ignored.
 
 ## Philosophy Reminders
 
