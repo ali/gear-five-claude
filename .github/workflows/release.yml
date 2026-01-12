@@ -38,6 +38,7 @@ jobs:
           OUT_FILE="dist/${{ matrix.asset }}" TARGET="${{ matrix.target }}" ./scripts/build-g5.sh
 
       - name: Prepare release installer script asset
+        if: matrix.os == 'ubuntu-latest'
         run: |
           mkdir -p dist
           cp release/g5-install.sh dist/g5-install.sh
@@ -46,10 +47,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.asset }}
-          path: |
-            dist/${{ matrix.asset }}
-            dist/g5-templates.tar.gz
-            dist/g5-install.sh
+          path: dist/
 
   publish:
     needs: build
