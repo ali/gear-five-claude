@@ -23,7 +23,7 @@ jobs:
           - os: macos-14
             target: bun-darwin-arm64
             asset: g5-darwin-arm64
-          - os: macos-13
+          - os: macos-12
             target: bun-darwin-x64
             asset: g5-darwin-x64
 
