@@ -58,12 +58,40 @@ See Claude Code settings docs for how scope and `settings.json` work:
 ## If Claude is driving setup
 
 Tell Claude:
-- “Read and follow `BOOTSTRAP.md`.”
+- "Read and follow `BOOTSTRAP.md`."
 
 Then Claude should:
 1. Ask you where the workspace should live
 2. Download and run `g5-install.sh` from GitHub Releases
 3. Tell you to start Claude Code (new session) to pick up settings/hooks
+
+---
+
+## Personalization (after install)
+
+Once Gear Five is installed, Claude can create **custom skills and agents** tailored to your specific work.
+
+### Option 1: Ask Claude directly
+Just say things like:
+- "Customize my Claude setup for my work"
+- "Create a skill for [specific task]"
+- "I wish Claude could [something]"
+
+Claude will activate the **customize skill** which forks to the **customization-architect agent**.
+
+### Option 2: Run the customize command
+```bash
+g5 customize
+```
+This outputs a protocol that guides Claude through a discovery conversation about your background, projects, and workflows.
+
+### What customization creates
+- **Domain-specific skills** for your field (ML, security, data science, etc.)
+- **Workflow automation agents** for repetitive tasks
+- **Research/analysis agents** for your information needs
+- **Code review patterns** specific to your tech stack
+
+The more Claude learns about your work, the more effective it becomes. Customization is how Gear Five compounds.
 
 ---
 

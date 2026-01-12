@@ -28,7 +28,7 @@ Gear Five Claude:
 The entry point. It describes the install wizard flow and what it changes.
 
 ### Skills
-Eleven skills in `skills/`:
+Twelve skills in `skills/`:
 - **claude-expert** - Claude Code mastery (hooks, skills, subagents)
 - **self-improve** - The learning loop
 - **keychain-security** - Secure credential handling
@@ -40,9 +40,10 @@ Eleven skills in `skills/`:
 - **settings-maintenance** - Audit and improve Claude Code config (forks to settings-doctor agent)
 - **code-review** - Orchestrates code review agents
 - **session-logs** - Search past Claude Code sessions for context and patterns
+- **customize** - Create personalized skills/agents based on user's needs (forks to customization-architect)
 
 ### Agents
-Seven subagents in `agents/`:
+Eight subagents in `agents/`:
 
 **Domain Agents:**
 - **literature-scout** - Academic research and paper summarization
@@ -54,6 +55,9 @@ Seven subagents in `agents/`:
 - **security-sentinel** - Security auditing (OWASP Top 10, injection vulnerabilities)
 - **code-simplifier** - YAGNI enforcer, complexity reduction
 - **silent-failure-hunter** - Hunts for swallowed errors and dangerous fallbacks
+
+**Meta Agent:**
+- **customization-architect** - Designs personalized skills/agents based on user discovery
 
 ### Wizard + Installer
 The Bun-based installer lives in `src/g5.ts`. It:
@@ -152,7 +156,8 @@ Key sources:
 │   ├── browser-security/
 │   ├── settings-maintenance/
 │   ├── code-review/
-│   └── session-logs/
+│   ├── session-logs/
+│   └── customize/
 ├── agents/
 │   ├── literature-scout.md
 │   ├── data-analyst.md
@@ -160,7 +165,8 @@ Key sources:
 │   ├── settings-doctor.md
 │   ├── security-sentinel.md
 │   ├── code-simplifier.md
-│   └── silent-failure-hunter.md
+│   ├── silent-failure-hunter.md
+│   └── customization-architect.md
 └── scripts/
     └── hooks-dispatch.sh
 

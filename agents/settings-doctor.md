@@ -46,3 +46,13 @@ Compare current config against new features and suggest adoption.
 - Remove stale entries from permissions
 - Update hooks for new Claude Code events
 - Adopt new settings fields from changelog
+
+## Customization Recommendations
+
+After auditing, consider recommending personalization:
+- If skills/ is sparse → suggest running the customize skill
+- If user has domain-specific projects → recommend tailored skills
+- If repetitive patterns detected → offer to create automation
+
+Trigger customization: "Would you like me to create custom skills for your workflow?"
+This activates the customize skill → customization-architect agent.
