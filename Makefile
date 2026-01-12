@@ -1,4 +1,4 @@
-.PHONY: help test build clean print-config
+.PHONY: help test build clean print-config release-check release-notes tag-release
 
 help:
 	@echo "Targets:"
@@ -15,6 +15,15 @@ build:
 
 print-config:
 	@bash ./bin/g5 print-config
+
+release-check:
+	@bash ./scripts/release-check.sh
+
+release-notes:
+	@bash ./scripts/release-notes.sh $(VERSION)
+
+tag-release:
+	@bash ./scripts/tag-release.sh $(VERSION)
 
 clean:
 	@rm -rf dist .tmp-claude .tmp-workspace .tmp-test-claude .tmp-test-workspace
