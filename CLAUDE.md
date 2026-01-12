@@ -84,6 +84,21 @@ make release-check
 grep -r "scripts/g5.ts" . --include="*.md" --include="*.sh"
 ```
 
+## Dev workflow (repo maintenance)
+
+### Pre-commit hooks (recommended)
+
+This repo ships repo-local git hooks under `.githooks/`.
+
+Enable them for this repo:
+```bash
+make hooks-install
+```
+
+The pre-commit hook runs:
+- `shellcheck` on `*.sh`
+- `oxfmt` + `oxlint` on staged JS/TS (uses local binaries if installed, otherwise falls back to `bunx`)
+
 ## Release & Distribution
 
 ### What gets published (GitHub Releases)

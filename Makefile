@@ -1,4 +1,4 @@
-.PHONY: help test build clean print-config release-check release-notes tag-release
+.PHONY: help test build clean print-config release-check release-notes tag-release hooks-install
 
 help:
 	@echo "Targets:"
@@ -24,6 +24,9 @@ release-notes:
 
 tag-release:
 	@bash ./scripts/tag-release.sh $(VERSION)
+
+hooks-install:
+	@bash ./scripts/install-dev-hooks.sh
 
 clean:
 	@rm -rf dist .tmp-claude .tmp-workspace .tmp-test-claude .tmp-test-workspace

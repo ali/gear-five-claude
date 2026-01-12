@@ -1,0 +1,92 @@
+#!/bin/bash
+set -euo pipefail
+
+# Repo-local pre-commit hook.
+# Enable with:
+#   ./scripts/install-dev-hooks.sh
+#
+# Runs:
+# - shellcheck on staged *.sh
+# - oxfmt on staged JS/TS
+# - oxlint on staged JS/TS
+
+die() {
+  echo "pre-commit: $*" >&2
+  exit 1
+}
+
+need_cmd() {
+  command -v "$1" >/dev/null 2>&1
+}
+
+ROOT="$(git rev-parse --show-toplevel)"
+cd "$ROOT"
+
+# Collect staged files safely (NUL-delimited).
+STAGED_FILES=()
+while IFS= read -r -d '' f; do
+  STAGED_FILES+=("$f")
+done < <(git diff --cached --name-only --diff-filter=ACM -z)
+
+if [[ "${#STAGED_FILES[@]}" -eq 0 ]]; then
+  exit 0
+fi
+
+SH_FILES=()
+JS_TS_FILES=()
+for f in "${STAGED_FILES[@]}"; do
+  case "$f" in
+    *.sh) SH_FILES+=("$f") ;;
+    *.js|*.jsx|*.ts|*.tsx) JS_TS_FILES+=("$f") ;;
+  esac
+done
+
+if [[ "${#SH_FILES[@]}" -gt 0 ]]; then
+  if ! need_cmd shellcheck; then
+    die "shellcheck is required. Install: brew install shellcheck (docs: https://github.com/koalaman/shellcheck)"
+  fi
+  echo "[pre-commit] shellcheck"
+  # shellcheck wants files on disk (staged content may differ, but good enough for our use).
+  # If you want staged-content linting later, we can add it.
+  shellcheck "${SH_FILES[@]}"
+fi
+
+run_oxfmt() {
+  if need_cmd oxfmt; then
+    oxfmt "$@"
+    return 0
+  fi
+  if need_cmd bun; then
+    bunx oxfmt "$@"
+    return 0
+  fi
+  return 1
+}
+
+run_oxlint() {
+  if need_cmd oxlint; then
+    oxlint "$@"
+    return 0
+  fi
+  if need_cmd bun; then
+    bunx oxlint "$@"
+    return 0
+  fi
+  return 1
+}
+
+if [[ "${#JS_TS_FILES[@]}" -gt 0 ]]; then
+  echo "[pre-commit] oxfmt"
+  if ! run_oxfmt "${JS_TS_FILES[@]}"; then
+    die "oxfmt is required (install oxc tools or bun). See: https://oxc.rs/docs/guide/usage/formatter/integration.html"
+  fi
+
+  # If formatter changed files, re-stage them.
+  git add -- "${JS_TS_FILES[@]}" >/dev/null 2>&1 || true
+
+  echo "[pre-commit] oxlint"
+  if ! run_oxlint "${JS_TS_FILES[@]}"; then
+    die "oxlint is required (install oxc tools or bun). See: https://oxc.rs/docs/guide/usage/linter/integration.html"
+  fi
+fi
+
