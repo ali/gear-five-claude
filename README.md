@@ -61,6 +61,13 @@ The Bun-based installer lives in `src/g5.ts`. It:
 - Initializes your vault from `vault-template/`
 - Updates **user-scoped** Claude Code settings (`~/.claude/settings.json`) with hooks, env, safeguards, and an optional status line
 
+### Customization Command
+After installation, run `g5 customize` to generate personalized skills and agents:
+```bash
+g5 customize
+```
+This guides Claude through a discovery conversation about your background, projects, and workflows, then creates custom skills and agents tailored to your specific needs.
+
 ### Optional: single-file executable
 If you don’t want the runtime dependency on `bun`, you can compile `g5` into a standalone binary:
 

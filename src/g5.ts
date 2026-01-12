@@ -61,6 +61,7 @@ function printUsage(exitCode = 0) {
       "  install       Install without prompts (use flags)",
       "  doctor        Validate install (no changes)",
       "  print-config  Print the settings.json patch we would apply",
+      "  customize     Generate personalized skills/agents based on user background",
       "",
       "Flags:",
       "  --workspace <path>      Workspace directory (default: ~/src/claude-workspace)",
@@ -488,6 +489,106 @@ async function runWizard() {
   }
 }
 
+async function runCustomize(cfg: InstallConfig) {
+  const skillsDir = path.join(cfg.claudeDir, "skills");
+  const agentsDir = path.join(cfg.claudeDir, "agents");
+
+  output.write(
+    `
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                     GEAR FIVE CUSTOMIZATION PROTOCOL                         ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+Claude, follow this protocol to create personalized skills and agents for the user.
+
+## Phase 1: Research Claude Code Capabilities
+
+First, understand what's possible:
+
+1. Use the claude-expert skill to learn about:
+   - Skills: structure, frontmatter fields (context, agent, allowed-tools, model)
+   - Agents: system prompts, tool restrictions, model selection
+   - How skills can fork to agents via \`context: fork\` + \`agent: X\`
+
+2. Review existing skills for patterns:
+   - ${skillsDir}/
+   - Look at multi-file skills with progressive disclosure
+
+3. Review existing agents:
+   - ${agentsDir}/
+
+## Phase 2: User Discovery Conversation
+
+Have a thorough conversation to understand the user. Ask about:
+
+### Background & Expertise
+- What's your professional background? (role, industry, years of experience)
+- What programming languages/frameworks do you use most?
+- Any specialized domains? (ML, security, data science, DevOps, etc.)
+
+### Current Work
+- What projects are you actively working on?
+- What's in your ~/Developer or ~/src directories?
+- What tools/CLIs do you use daily?
+
+### Pain Points & Workflows
+- What repetitive tasks do you wish were automated?
+- What research do you do regularly? (docs, papers, forums, etc.)
+- What types of code review or analysis do you need?
+
+### Goals
+- What would make Claude 10x more useful for your specific work?
+- Any dream features? ("I wish Claude could just...")
+
+## Phase 3: Design Custom Skills & Agents
+
+Based on the discovery, propose:
+
+1. **Domain-specific skills** tailored to their field
+   - Use multi-file structure with reference docs
+   - Consider which should fork to specialized agents
+
+2. **Workflow automation agents** for their repetitive tasks
+   - Choose appropriate model (sonnet for speed, opus for complex reasoning)
+   - Define clear trigger conditions
+
+3. **Research/analysis agents** for their information needs
+   - Academic papers, documentation, community discussions
+   - Code review patterns specific to their stack
+
+## Phase 4: Implementation
+
+For each proposed skill/agent:
+
+1. Show the user the design before creating
+2. Create the files in:
+   - Skills: ${skillsDir}/{skill-name}/SKILL.md (+ reference docs)
+   - Agents: ${agentsDir}/{agent-name}.md
+3. Explain how to trigger/use it
+
+## Phase 5: Permissions & Integration
+
+Check if any new tools need to be added to settings.json:
+- permissions.allow for new CLI tools
+- sandbox.excludedCommands for network-dependent tools
+
+## Output
+
+At the end, summarize:
+- Skills created
+- Agents created
+- How to use each one
+- Any permissions the user should add
+
+═══════════════════════════════════════════════════════════════════════════════
+
+Begin by asking the user about their background and work. Be conversational and
+curious - the more you learn, the better you can customize their setup!
+
+`.trim() + "\n",
+  );
+}
+
 function parseArgs(argv: string[]): { cmd: string; cfg: Partial<InstallConfig> } {
   const cmd = argv[2] ?? "";
   const cfg: Partial<InstallConfig> = {};
@@ -557,6 +658,11 @@ async function main() {
       process.exit(2);
     }
     await install(resolved);
+    return;
+  }
+
+  if (cmd === "customize") {
+    await runCustomize(resolved);
     return;
   }
 
