@@ -28,11 +28,32 @@ Gear Five Claude:
 The entry point. It describes the install wizard flow and what it changes.
 
 ### Skills
-Four core skills in `skills/`:
+Eleven skills in `skills/`:
 - **claude-expert** - Claude Code mastery (hooks, skills, subagents)
 - **self-improve** - The learning loop
 - **keychain-security** - Secure credential handling
 - **trafilatura** - Web content extraction (read articles, docs, blogs)
+- **arxiv-paper** - Fetch and read arXiv papers (forks to literature-scout agent)
+- **browser-inspect** - Browser automation for privacy research (forks to browser-devtools agent)
+- **measurement-analysis** - Data analysis with pandas/SQL/stats (forks to data-analyst agent)
+- **browser-security** - Security patterns for extensions, fingerprinting, CSP/CORS
+- **settings-maintenance** - Audit and improve Claude Code config (forks to settings-doctor agent)
+- **code-review** - Orchestrates code review agents
+- **session-logs** - Search past Claude Code sessions for context and patterns
+
+### Agents
+Seven subagents in `agents/`:
+
+**Domain Agents:**
+- **literature-scout** - Academic research and paper summarization
+- **data-analyst** - Elite data analyst with pandas, SQL, statistics, Tableau
+- **browser-devtools** - Browser automation (agent-browser CLI, Puppeteer MCP)
+- **settings-doctor** - Claude Code configuration specialist
+
+**Code Review Agents:**
+- **security-sentinel** - Security auditing (OWASP Top 10, injection vulnerabilities)
+- **code-simplifier** - YAGNI enforcer, complexity reduction
+- **silent-failure-hunter** - Hunts for swallowed errors and dangerous fallbacks
 
 ### Wizard + Installer
 The Bun-based installer lives in `src/g5.ts`. It:
@@ -116,7 +137,23 @@ Key sources:
 ├── skills/
 │   ├── claude-expert/
 │   ├── self-improve/
-│   └── keychain-security/
+│   ├── keychain-security/
+│   ├── trafilatura/
+│   ├── arxiv-paper/
+│   ├── browser-inspect/
+│   ├── measurement-analysis/
+│   ├── browser-security/
+│   ├── settings-maintenance/
+│   ├── code-review/
+│   └── session-logs/
+├── agents/
+│   ├── literature-scout.md
+│   ├── data-analyst.md
+│   ├── browser-devtools.md
+│   ├── settings-doctor.md
+│   ├── security-sentinel.md
+│   ├── code-simplifier.md
+│   └── silent-failure-hunter.md
 └── scripts/
     └── hooks-dispatch.sh
 

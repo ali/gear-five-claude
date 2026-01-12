@@ -174,6 +174,8 @@ function gearFiveSettingsPatch(cfg: InstallConfig): SettingsJson {
     "Bash(git log:*)",
     // web content extraction
     "Bash(trafilatura:*)",
+    // browser automation
+    "Bash(agent-browser:*)",
   ];
 
   const allowStrict = ["Bash(ls:*)", "Bash(pwd)", "Bash(whoami)", "Bash(git status)"];
@@ -183,9 +185,9 @@ function gearFiveSettingsPatch(cfg: InstallConfig): SettingsJson {
     deny: cfg.profile === "strict" ? denyStrict : denyBalanced,
   };
 
-  // Sandbox: give Claude RW access to his workspace (bin, vault, etc.)
+  // Sandbox: give Claude RW access to his workspace and ~/.claude
   const sandbox: NonNullable<SettingsJson["sandbox"]> = {
-    allowedWritePaths: [cfg.workspace],
+    allowedWritePaths: [cfg.workspace, cfg.claudeDir],
   };
 
   const patch: SettingsJson = { env, hooks, permissions, sandbox };
