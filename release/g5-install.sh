@@ -17,6 +17,55 @@ set -euo pipefail
 G5_REPO="${G5_REPO:-ali/gear-five-claude}"
 G5_RELEASE_BASE="https://github.com/${G5_REPO}/releases/latest/download"
 
+# Backup directory for recovery
+CLAUDE_DIR="${CLAUDE_DIR:-$HOME/.claude}"
+BACKUP_DIR="$HOME"
+
+backup_claude_dir() {
+  if [[ -d "$CLAUDE_DIR" ]]; then
+    local stamp
+    stamp=$(date +%Y%m%d-%H%M%S)
+    local backup_path="${BACKUP_DIR}/.claude.backup-${stamp}.tar.gz"
+    echo "Creating backup of $CLAUDE_DIR..."
+    if tar -czf "$backup_path" -C "$HOME" .claude 2>/dev/null; then
+      echo "Backup saved: $backup_path"
+      echo ""
+      echo "To restore if something goes wrong:"
+      echo "  rm -rf ~/.claude && tar -xzf $backup_path -C ~"
+      echo ""
+    else
+      echo "Warning: Could not create backup (continuing anyway)"
+    fi
+  fi
+}
+
+validate_settings_json() {
+  local settings="$CLAUDE_DIR/settings.json"
+  if [[ -f "$settings" ]]; then
+    # Use python/node/jq to validate JSON - try each in order
+    if command -v python3 >/dev/null 2>&1; then
+      if ! python3 -c "import json; json.load(open('$settings'))" 2>/dev/null; then
+        echo "Error: $settings contains invalid JSON."
+        echo "Please fix it before running the installer."
+        exit 1
+      fi
+    elif command -v node >/dev/null 2>&1; then
+      if ! node -e "JSON.parse(require('fs').readFileSync('$settings'))" 2>/dev/null; then
+        echo "Error: $settings contains invalid JSON."
+        echo "Please fix it before running the installer."
+        exit 1
+      fi
+    elif command -v jq >/dev/null 2>&1; then
+      if ! jq empty "$settings" 2>/dev/null; then
+        echo "Error: $settings contains invalid JSON."
+        echo "Please fix it before running the installer."
+        exit 1
+      fi
+    fi
+    # If no JSON validator available, proceed anyway (g5.ts will catch it)
+  fi
+}
+
 need_cmd() {
   command -v "$1" >/dev/null 2>&1
 }
@@ -59,6 +108,10 @@ echo "Gear Five installer"
 echo "- Repo: ${G5_REPO}"
 echo "- Assets: ${ASSET_BIN}, ${ASSET_TPL}"
 echo ""
+
+# Pre-flight: backup existing ~/.claude and validate settings.json
+backup_claude_dir
+validate_settings_json
 
 BIN_PATH="${TMP_DIR}/${ASSET_BIN}"
 TPL_PATH="${TMP_DIR}/${ASSET_TPL}"
