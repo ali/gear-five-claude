@@ -2,14 +2,14 @@
 # Inject compact context at session start
 # Outputs counts and references, not full content
 
-# Get vault path from env (preferred) or fallback.
+# Get vault path from env. No hardcoded fallback - if unset, skip gracefully.
 # `GEARFIVE_VAULT` is set by the Gear Five installer via Claude Code `settings.json` -> `env`.
 # `CLAUDE_VAULT` is supported as a compatibility fallback.
-VAULT="${GEARFIVE_VAULT:-${CLAUDE_VAULT:-$HOME/src/claude-workspace/vault}}"
+VAULT="${GEARFIVE_VAULT:-${CLAUDE_VAULT:-}}"
 TODAY=$(date +%Y-%m-%d)
 
-# Exit silently if vault doesn't exist yet
-if [[ ! -d "$VAULT" ]]; then
+# Exit silently if vault not configured or doesn't exist
+if [[ -z "$VAULT" ]] || [[ ! -d "$VAULT" ]]; then
   exit 0
 fi
 

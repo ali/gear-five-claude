@@ -2,9 +2,14 @@
 # Save state before context compaction
 # This is a reminder hook - actual saving is done by Claude
 
-VAULT="${GEARFIVE_VAULT:-${CLAUDE_VAULT:-$HOME/src/claude-workspace/vault}}"
+VAULT="${GEARFIVE_VAULT:-${CLAUDE_VAULT:-}}"
 TODAY=$(date +%Y-%m-%d)
 NOW=$(date +%H:%M)
+
+# Exit silently if vault not configured
+if [[ -z "$VAULT" ]]; then
+  exit 0
+fi
 
 # Ensure daily note exists
 DAILY_NOTE="$VAULT/notes/daily/$TODAY.md"

@@ -16,7 +16,7 @@ fi
 # Run each executable script in order
 for script in "$HOOKS_DIR"/*; do
   if [[ -f "$script" ]] && [[ -x "$script" ]]; then
-    "$script" "$@" 2>/dev/null
+    "$script" "$@"
   fi
 done
 
