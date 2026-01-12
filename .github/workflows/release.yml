@@ -1,0 +1,76 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: bun-linux-x64
+            asset: g5-linux-x64
+          - os: macos-14
+            target: bun-darwin-arm64
+            asset: g5-darwin-arm64
+          - os: macos-13
+            target: bun-darwin-x64
+            asset: g5-darwin-x64
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Build ${{ matrix.asset }}
+        run: |
+          OUT_FILE="dist/${{ matrix.asset }}" TARGET="${{ matrix.target }}" ./scripts/build-g5.sh
+
+      - name: Prepare release installer script asset
+        run: |
+          mkdir -p dist
+          cp release/g5-install.sh dist/g5-install.sh
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.asset }}
+          path: |
+            dist/${{ matrix.asset }}
+            dist/g5-templates.tar.gz
+            dist/g5-install.sh
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Flatten artifacts
+        run: |
+          mkdir -p dist
+          find artifacts -type f -maxdepth 3 -print -exec cp {} dist/ \;
+          ls -la dist
+
+      - name: Publish GitHub Release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/g5-*
+            dist/g5-install.sh
+
