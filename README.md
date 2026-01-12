@@ -28,13 +28,10 @@ Gear Five Claude:
 The entry point. It describes the install wizard flow and what it changes.
 
 ### Skills
-Four core skills in `skills/`:
+Three core skills in `skills/`:
 - **claude-expert** - Claude Code mastery (hooks, skills, subagents)
 - **self-improve** - The learning loop
 - **keychain-security** - Secure credential handling
-- **context-hygiene** - Context window discipline
-
-Context hygiene is both a skill and a foundational behavior.
 
 ### Wizard + Installer
 The Bun-based installer lives in `src/g5.ts`. It:
@@ -144,6 +141,15 @@ Useful references:
 - [Devcontainers](https://code.claude.com/docs/en/devcontainer.md)
 
 When new features appear or patterns become outdated, Gear Five proposes updates.
+
+## For Forks
+
+If you fork this repo, users need to set `G5_REPO` before running the installer:
+```bash
+export G5_REPO="yourname/your-fork"
+curl -fsSL -o g5-install.sh https://github.com/$G5_REPO/releases/latest/download/g5-install.sh
+chmod +x ./g5-install.sh && ./g5-install.sh
+```
 
 ## Future Plans
 
