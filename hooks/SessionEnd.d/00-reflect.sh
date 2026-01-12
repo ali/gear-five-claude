@@ -1,7 +1,7 @@
 #!/bin/bash
 # End of session reflection prompt
 
-VAULT="${CLAUDE_VAULT:-$HOME/src/claude-workspace/vault}"
+VAULT="${GEARFIVE_VAULT:-${CLAUDE_VAULT:-$HOME/src/claude-workspace/vault}}"
 TODAY=$(date +%Y-%m-%d)
 
 # Output reflection prompt

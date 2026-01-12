@@ -2,7 +2,7 @@
 # Save state before context compaction
 # This is a reminder hook - actual saving is done by Claude
 
-VAULT="${CLAUDE_VAULT:-$HOME/src/claude-workspace/vault}"
+VAULT="${GEARFIVE_VAULT:-${CLAUDE_VAULT:-$HOME/src/claude-workspace/vault}}"
 TODAY=$(date +%Y-%m-%d)
 NOW=$(date +%H:%M)
 

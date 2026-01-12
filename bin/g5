@@ -1,0 +1,27 @@
+#!/bin/bash
+set -euo pipefail
+
+# Gear Five wrapper for the Bun-based wizard/installer.
+#
+# Usage:
+#   ./bin/g5 wizard
+#   ./bin/g5 install --yes --workspace ~/src/claude-workspace
+#
+# If Bun isn't installed, we print a helpful install hint.
+
+if ! command -v bun >/dev/null 2>&1; then
+  echo "bun is required to run Gear Five."
+  echo ""
+  echo "Install via Homebrew:"
+  echo "  brew install bun"
+  echo ""
+  echo "Bun install docs:"
+  echo "  https://bun.sh/docs/installation"
+  exit 1
+fi
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+exec bun "$REPO_ROOT/scripts/g5.ts" "$@"
+

@@ -1,0 +1,7 @@
+# Build artifacts
+dist/
+
+# Local test/install scratch
+.tmp-claude/
+.tmp-workspace/
+

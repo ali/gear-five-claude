@@ -1,6 +1,8 @@
 # Gear Five Claude
 
-A self-improving Claude Code expert. Like Luffy's Gear Five awakening, this transforms Claude from a static tool into a dynamic, learning partner that gets increasingly cracked at Claude Code itself.
+A self-improving Claude Code configuration for **Claude Code**.
+
+Like Luffy's Gear Five awakening, this aims to transform Claude from a static tool into a dynamic, learning partner that gets increasingly effective over time — by improving its **environment** (instructions, hooks, skills, and file-based memory), not its weights.
 
 ## The Core Loop
 
@@ -16,31 +18,39 @@ Gear Five Claude:
 
 ## Quick Start
 
-1. Start a new Claude Code session
-2. Ask Claude to read this bootstrap URL:
-   ```
-   Please read and follow: [BOOTSTRAP.md raw URL]
-   ```
-3. Answer the setup questions
-4. Gear Five awakens
+1. Start a Claude Code session.
+2. Tell Claude: “Read and follow `BOOTSTRAP.md`.”
+3. Claude will have you download and run the release installer, then tell you to restart/start a new Claude Code session.
 
 ## What's Included
 
 ### BOOTSTRAP.md
-The entry point. Claude reads this and self-configures through 5 phases:
-1. **Gather** - Ask questions about workspace, identity, use case
-2. **Structure** - Create directories and vault
-3. **Configure** - Generate CLAUDE.md, install hooks
-4. **Initialize** - Create first daily note
-5. **Verify** - Test everything works
+The entry point. It describes the install wizard flow and what it changes.
 
 ### Skills
-Three core skills in `skills/`:
+Four core skills in `skills/`:
 - **claude-expert** - Claude Code mastery (hooks, skills, subagents)
 - **self-improve** - The learning loop
 - **keychain-security** - Secure credential handling
+- **context-hygiene** - Context window discipline
 
-Context hygiene principles are baked into `CLAUDE.md` as foundational behavior.
+Context hygiene is both a skill and a foundational behavior.
+
+### Wizard + Installer
+The Bun-based installer lives in `scripts/g5.ts`. It:
+- Installs hooks/skills/scripts into `~/.claude/`
+- Initializes your vault from `vault-template/`
+- Updates **user-scoped** Claude Code settings (`~/.claude/settings.json`) with hooks, env, safeguards, and an optional status line
+
+### Optional: single-file executable
+If you don’t want the runtime dependency on `bun`, you can compile `g5` into a standalone binary:
+
+- Build docs: https://bun.sh/docs/bundler/executables
+
+```bash
+./scripts/build-g5.sh
+./dist/g5 wizard
+```
 
 ### Hooks
 Modular hooks in `hooks/`:
@@ -124,8 +134,14 @@ Key sources:
 ## Staying Current
 
 Gear Five tracks Claude Code updates via:
-- https://github.com/marckrenn/claude-code-changelog
-- https://code.claude.com/docs/
+- [claude-code-changelog](https://github.com/marckrenn/claude-code-changelog)
+- [Claude Code docs](https://code.claude.com/docs/)
+
+Useful references:
+- [Claude Code settings](https://code.claude.com/docs/en/settings.md)
+- [Status line](https://code.claude.com/docs/en/statusline.md)
+- [Sandboxing](https://code.claude.com/docs/en/sandboxing.md)
+- [Devcontainers](https://code.claude.com/docs/en/devcontainer.md)
 
 When new features appear or patterns become outdated, Gear Five proposes updates.
 
