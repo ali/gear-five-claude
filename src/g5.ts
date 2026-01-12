@@ -5,10 +5,10 @@
  * User-scoped only: edits ~/.claude/settings.json
  *
  * Usage:
- *   bun ./scripts/g5.ts wizard
- *   bun ./scripts/g5.ts install --workspace ~/src/claude-workspace
- *   bun ./scripts/g5.ts doctor
- *   bun ./scripts/g5.ts print-config
+ *   bun ./src/g5.ts wizard
+ *   bun ./src/g5.ts install --workspace ~/src/claude-workspace
+ *   bun ./src/g5.ts doctor
+ *   bun ./src/g5.ts print-config
  */
 
 import { mkdir, readdir, readFile, stat, writeFile, chmod, copyFile } from "node:fs/promises";
@@ -104,7 +104,7 @@ function normalizeAbs(p: string): string {
 }
 
 function repoRootFromHere(): string {
-  // scripts/g5.ts -> repoRoot/scripts
+  // src/g5.ts -> repoRoot/src
   return path.resolve(import.meta.dir, "..");
 }
 
@@ -167,12 +167,7 @@ function gearFiveSettingsPatch(cfg: InstallConfig): SettingsJson {
     "Bash(git log:*)",
   ];
 
-  const allowStrict = [
-    "Bash(ls:*)",
-    "Bash(pwd)",
-    "Bash(whoami)",
-    "Bash(git status)",
-  ];
+  const allowStrict = ["Bash(ls:*)", "Bash(pwd)", "Bash(whoami)", "Bash(git status)"];
 
   const permissions: NonNullable<SettingsJson["permissions"]> = {
     allow: cfg.profile === "strict" ? allowStrict : allowBalanced,
@@ -208,7 +203,6 @@ function mergeSettings(existing: SettingsJson, patch: SettingsJson): SettingsJso
   next.hooks ??= {};
   for (const [eventName, arr] of Object.entries(patch.hooks ?? {})) {
     const existingArr = next.hooks[eventName] ?? [];
-    // If an identical command exists, do nothing; otherwise append our entry.
     const desired = arr[0];
     const desiredCommand = desired?.hooks?.[0]?.command;
     const already = existingArr.some((entry) =>
@@ -217,8 +211,7 @@ function mergeSettings(existing: SettingsJson, patch: SettingsJson): SettingsJso
     next.hooks[eventName] = already ? existingArr : [...existingArr, ...arr];
   }
 
-  // statusLine: Gear Five can own it by default (non-destructive would be "only set if missing"),
-  // but user asked for it, so we set it (they can disable via --no-statusline).
+  // statusLine: user opted-in (default), so set it. Users can disable via --no-statusline.
   if (patch.statusLine) next.statusLine = patch.statusLine;
 
   return next;
@@ -349,7 +342,6 @@ async function install(cfg: InstallConfig) {
   const merged = mergeSettings(existing, patch);
   await writeSettingsJson(settingsPath, merged, cfg.dryRun);
 
-  // 5) Optionally print a minimal verification command the user can run
   output.write(
     [
       "",
@@ -360,7 +352,7 @@ async function install(cfg: InstallConfig) {
       "",
       "Next:",
       "- Restart Claude Code (or start a new session) to pick up settings/hooks.",
-      "- Run: bun ./scripts/g5.ts doctor",
+      "- Run: g5 doctor",
       "",
     ].join("\n"),
   );
@@ -401,7 +393,7 @@ async function doctor(cfg: InstallConfig) {
 
   if (!envOk || !hooksOk || !statusOk || missing.length) {
     output.write("\nFix: re-run install:\n");
-    output.write(`bun ./scripts/g5.ts install --workspace ${cfg.workspace}\n\n`);
+    output.write(`g5 install --workspace ${cfg.workspace}\n\n`);
     process.exit(1);
   }
 }

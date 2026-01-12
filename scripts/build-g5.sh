@@ -32,7 +32,7 @@ TARGET="${TARGET:-}"
 
 mkdir -p "$OUT_DIR"
 
-ARGS=(build --compile "$ROOT_DIR/scripts/g5.ts" --outfile "$OUT_FILE" --minify)
+ARGS=(build --compile "$ROOT_DIR/src/g5.ts" --outfile "$OUT_FILE" --minify)
 if [[ -n "$TARGET" ]]; then
   ARGS+=(--target "$TARGET")
 fi

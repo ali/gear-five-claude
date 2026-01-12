@@ -37,7 +37,7 @@ Four core skills in `skills/`:
 Context hygiene is both a skill and a foundational behavior.
 
 ### Wizard + Installer
-The Bun-based installer lives in `scripts/g5.ts`. It:
+The Bun-based installer lives in `src/g5.ts`. It:
 - Installs hooks/skills/scripts into `~/.claude/`
 - Initializes your vault from `vault-template/`
 - Updates **user-scoped** Claude Code settings (`~/.claude/settings.json`) with hooks, env, safeguards, and an optional status line

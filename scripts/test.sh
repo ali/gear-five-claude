@@ -22,7 +22,7 @@ trap cleanup EXIT
 rm -rf "$TMP_CLAUDE" "$TMP_WS"
 
 echo "[test] g5.ts install (dry-run) with templates-root"
-OUT="$(bun ./scripts/g5.ts install --dry-run --yes \
+OUT="$(bun ./src/g5.ts install --dry-run --yes \
   --claude-dir "$TMP_CLAUDE" \
   --workspace "$TMP_WS" \
   --templates-root "$ROOT_DIR")"

@@ -23,5 +23,5 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-exec bun "$REPO_ROOT/scripts/g5.ts" "$@"
+exec bun "$REPO_ROOT/src/g5.ts" "$@"
 
