@@ -28,10 +28,11 @@ Gear Five Claude:
 The entry point. It describes the install wizard flow and what it changes.
 
 ### Skills
-Three core skills in `skills/`:
+Four core skills in `skills/`:
 - **claude-expert** - Claude Code mastery (hooks, skills, subagents)
 - **self-improve** - The learning loop
 - **keychain-security** - Secure credential handling
+- **trafilatura** - Web content extraction (read articles, docs, blogs)
 
 ### Wizard + Installer
 The Bun-based installer lives in `src/g5.ts`. It:

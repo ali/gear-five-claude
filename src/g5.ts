@@ -172,6 +172,8 @@ function gearFiveSettingsPatch(cfg: InstallConfig): SettingsJson {
     "Bash(git status)",
     "Bash(git diff:*)",
     "Bash(git log:*)",
+    // web content extraction
+    "Bash(trafilatura:*)",
   ];
 
   const allowStrict = ["Bash(ls:*)", "Bash(pwd)", "Bash(whoami)", "Bash(git status)"];
