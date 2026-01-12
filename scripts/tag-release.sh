@@ -30,7 +30,8 @@ fi
 NOTES="$(./scripts/release-notes.sh "$VERSION")"
 echo "$NOTES" > /tmp/g5-release-notes.md
 
-git tag -a "$VERSION" -m "Release $VERSION" -F /tmp/g5-release-notes.md
+# Use -F to set the tag message from file (don't combine with -m).
+git tag -a "$VERSION" -F /tmp/g5-release-notes.md
 
 echo "[push] pushing tag $VERSION"
 git push origin "$VERSION"
